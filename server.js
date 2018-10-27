@@ -50,6 +50,19 @@ io.on('connection', function (socket) {
     });
   });
 
+  socket.on('disconnect', function () {
+    for (var key in obj) {
+      obj[key].forEach(function(element, index) {
+        console.log(element);
+        if(element.key == _id){
+          obj[key].splice(index, 1);
+          io.emit(key, obj);
+        }
+      });
+    }
+    console.log('disconnected : ' + _id);
+  });
+
 });
 
 var port = process.env.PORT || 3000;
