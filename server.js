@@ -25,16 +25,20 @@ io.on('connection', function (socket) {
     temp_userlist_has = obj[key];
     temp_userlist_has.push({
       key: _id,
+      myid: socket.handshake.query.myid,
       nickname: socket.handshake.query.nickname,
       room_code: socket.handshake.query.room_code,
+      position: ''
     });
     obj[key] = temp_userlist_has;
   }else{
     console.log('สร้างห้องใหม่ : ' + socket.handshake.query.room_code);
     temp_userlist.push({
       key: _id,
+      myid: socket.handshake.query.myid,
       nickname: socket.handshake.query.nickname,
       room_code: socket.handshake.query.room_code,
+      position: ''
     });
     obj[key] = temp_userlist;
   }
@@ -48,6 +52,15 @@ io.on('connection', function (socket) {
         io.emit(data.room_code, obj);
       }
     });
+  });
+
+  socket.on('startgame', function (room_code) {
+    var index_spy = Math.floor(Math.random()*obj[room_code].length);
+    obj[room_code].forEach(function(element, index) {
+      obj[room_code][index].position = '';
+    });
+    obj[room_code][index_spy].position = 'spy';
+    io.emit('game-start-' + room_code, obj);
   });
 
   socket.on('disconnect', function () {
