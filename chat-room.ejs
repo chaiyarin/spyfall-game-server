@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
+        crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var username = "<%= data.username %>";
+        var socket = io('', {query: 'username='+username});
+        socket.on('server-to-client', function (data) {
+            if (data.type == 'user' && data.username == username) {
+                $('#listMessage').append(`
+                    <div class="mt-2 pl-2 pr-2 text-right bg-primary" style="width: 100%; position: relative;">
+                        <div style="width: 60%; float: right; color: green;" class="text-right">
+                            ${data.message}
+                        </div>
+                    </div>
+                `);
+            }
+            if (data.type == 'user' && data.username != username) {
+                $('#listMessage').append(`
+                    <div class="mt-2 pl-2 pr-2" style="width: 100%;">
+                        <div style="width: 60%; float: left; color: blue;">
+                            ${data.username} : ${data.message}
+                        </div>
+                    </div>
+                `);
+            }
+        });
+        $(document).ready(function () {
+            $('#send').click(function () {
+                sendMessage();
+            });
+            if (isSafari()) {
+                $('#listBoxMessage').css('height', '80vh');
+            }
+        });
+        function isSafari() {
+            var ua = navigator.userAgent.toLowerCase();
+            if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+                return true;
+            }
+            return false;
+        }
+        function checkEnterKey(event) {
+            if (event.code == "Enter") {
+                sendMessage();
+            }
+        }
+        function sendMessage() {
+            socket.emit('client-to-server', {
+                type: 'user',
+                username: username,
+                message: $('#message').val()
+            });
+            $('#message').val('');
+        }
+    </script>
+</head>
+
+<body>
+    <div style="height:90vh; overflow-y:scroll;  position: relative;" id="listBoxMessage">
+        <div style=" position: absolute;
+        bottom: 0; width: 100%;" id="listMessage">
+
+        </div>
+    </div>
+    <div class="input-group fixed-bottom">
+        <input type="text" class="form-control" onKeypress="checkEnterKey(event,this);" id="message" placeholder="Message" aria-label="Message"
+            aria-describedby="button-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-secondary" type="button" id="send">Send</button>
+        </div>
+    </div>
+</body>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
+    crossorigin="anonymous">
+
+</html>
