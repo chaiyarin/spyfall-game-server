@@ -58,8 +58,14 @@ io.on('connection', function (socket) {
 
   socket.on('startgame', function (room_code) {
     var index_spy = Math.floor(Math.random()*obj[room_code].length);
+    var order_lists = new Array();
+    for(var i=0; i< obj[room_code].length; i++) {
+      order_lists.push(i+1);
+    }
+    order_lists = shuffle(order_lists);
     obj[room_code].forEach(function(element, index) {
       obj[room_code][index].position = '';
+      obj[room_code][index].order = order_lists.pop();
     });
     obj[room_code][index_spy].position = 'spy';
     var game_detail = {
@@ -85,21 +91,15 @@ io.on('connection', function (socket) {
 
 });
 
-function startTimer(duration, display) {
-  var timer = duration, minutes, seconds;
-  setInterval(function () {
-      minutes = parseInt(timer / 60, 10)
-      seconds = parseInt(timer % 60, 10);
-
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
-
-      display.textContent = minutes + ":" + seconds;
-
-      if (--timer < 0) {
-          timer = duration;
-      }
-  }, 1000);
+function shuffle(a) {
+  var j, x, i;
+  for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      x = a[i];
+      a[i] = a[j];
+      a[j] = x;
+  }
+  return a;
 }
 
 
