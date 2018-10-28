@@ -64,7 +64,7 @@ io.on('connection', function (socket) {
     obj[room_code][index_spy].position = 'spy';
     var game_detail = {
       location : 'โรงเรียน',
-      timer: 8,
+      timer: 600,
       friend_list: obj[room_code]
     }
     io.emit('game-start-' + room_code, game_detail);
