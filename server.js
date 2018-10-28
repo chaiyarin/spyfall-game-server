@@ -28,7 +28,8 @@ io.on('connection', function (socket) {
       myid: socket.handshake.query.myid,
       nickname: socket.handshake.query.nickname,
       room_code: socket.handshake.query.room_code,
-      position: ''
+      position: '',
+      order: 0
     });
     obj[key] = temp_userlist_has;
   }else{
@@ -38,7 +39,8 @@ io.on('connection', function (socket) {
       myid: socket.handshake.query.myid,
       nickname: socket.handshake.query.nickname,
       room_code: socket.handshake.query.room_code,
-      position: ''
+      position: '',
+      order: 0
     });
     obj[key] = temp_userlist;
   }
@@ -60,7 +62,12 @@ io.on('connection', function (socket) {
       obj[room_code][index].position = '';
     });
     obj[room_code][index_spy].position = 'spy';
-    io.emit('game-start-' + room_code, obj);
+    var game_detail = {
+      location : 'โรงเรียน',
+      timer: 8,
+      friend_list: obj[room_code]
+    }
+    io.emit('game-start-' + room_code, game_detail);
   });
 
   socket.on('disconnect', function () {
@@ -77,6 +84,24 @@ io.on('connection', function (socket) {
   });
 
 });
+
+function startTimer(duration, display) {
+  var timer = duration, minutes, seconds;
+  setInterval(function () {
+      minutes = parseInt(timer / 60, 10)
+      seconds = parseInt(timer % 60, 10);
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      display.textContent = minutes + ":" + seconds;
+
+      if (--timer < 0) {
+          timer = duration;
+      }
+  }, 1000);
+}
+
 
 var port = process.env.PORT || 3000;
 http.listen(port, function () {
