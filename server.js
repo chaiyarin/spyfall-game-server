@@ -51,8 +51,10 @@ io.on('connection', function (socket) {
   io.emit(socket.handshake.query.room_code, obj);
 
   socket.on('kick-user', function (data) {
+    console.log('ลบออก');
+    console.log(data);
     obj[data.room_code].forEach(function(element, index) {
-      if(element.key == data.key){
+      if(element.myid == data.myid || element.key == data.key){
         obj[data.room_code].splice(index, 1);
         io.emit(data.room_code, obj);
       }
