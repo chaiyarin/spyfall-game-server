@@ -61,6 +61,10 @@ io.on('connection', function (socket) {
     });
   });
 
+  socket.on('endgame', function (data) {
+    io.emit('endgame-' + data.room_code, { game_end: true });
+  });
+
   socket.on('startgame', function (room_code) {
     var index_spy = Math.floor(Math.random()*obj[room_code].length);
     var order_lists = new Array();
