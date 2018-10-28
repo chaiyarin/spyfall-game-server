@@ -13,6 +13,9 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/spyfall";
+
 var obj = {};
 
 io.on('connection', function (socket) {
@@ -59,21 +62,34 @@ io.on('connection', function (socket) {
   socket.on('startgame', function (room_code) {
     var index_spy = Math.floor(Math.random()*obj[room_code].length);
     var order_lists = new Array();
+    var locations = [];
+    var location_people = new Array();
     for(var i=0; i< obj[room_code].length; i++) {
       order_lists.push(i+1);
     }
-    order_lists = shuffle(order_lists);
-    obj[room_code].forEach(function(element, index) {
-      obj[room_code][index].position = '';
-      obj[room_code][index].order = order_lists.pop();
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("spyfall");
+      console.log("Database created!");
+      dbo.collection("locations").find({}).toArray(function(err, result) {
+        if (err) throw err;
+        locations = result;
+        locations = shuffle(locations);
+        order_lists = shuffle(order_lists);
+        obj[room_code].forEach(function(element, index) {
+          obj[room_code][index].position = locations[0].peoples[Math.floor(Math.random() * locations[0].peoples.length)];
+          obj[room_code][index].order = order_lists.pop();
+        });
+        obj[room_code][index_spy].position = 'spy';
+        var game_detail = {
+          location : locations[0].name,
+          timer: 600,
+          friend_list: obj[room_code]
+        }
+        io.emit('game-start-' + room_code, game_detail);
+        db.close();
+      });
     });
-    obj[room_code][index_spy].position = 'spy';
-    var game_detail = {
-      location : 'โรงเรียน',
-      timer: 600,
-      friend_list: obj[room_code]
-    }
-    io.emit('game-start-' + room_code, game_detail);
   });
 
   socket.on('disconnect', function () {
