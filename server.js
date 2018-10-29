@@ -4,6 +4,7 @@ const cors = require('cors');
 app.use(cors());
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+io.origins('*:*');
 var bodyParser = require('body-parser');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }))
