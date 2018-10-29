@@ -90,7 +90,8 @@ io.on('connection', function (socket) {
         var game_detail = {
           location : locations[0].name,
           timer: 600,
-          friend_list: obj[room_code]
+          friend_list: obj[room_code],
+          location_list: result
         }
         io.emit('game-start-' + room_code, game_detail);
         db.close();
