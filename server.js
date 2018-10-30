@@ -103,14 +103,12 @@ io.on('connection', function (socket) {
     var index_spy = Math.floor(Math.random()*obj[room_code].length);
     var order_lists = new Array();
     var locations = [];
-    var location_people = new Array();
     for(var i=0; i< obj[room_code].length; i++) {
       order_lists.push(i+1);
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
       if (err) throw err;
       var dbo = db.db("spyfall");
-      console.log("Database created!");
       dbo.collection("locations").find({}).toArray(function(err, result) {
         if (err) throw err;
         locations = result;
