@@ -51,7 +51,7 @@ io.on('connection', function (socket) {
     });
     obj[key] = temp_userlist_has;
     if(room_permenent_id[key].indexOf(socket.handshake.query.myid) == -1){
-      room_detail[key] = { start_time: null, game_start_already: false};
+      room_detail[key] = { start_time: null, game_start_already: false, time_round: (isNaN(socket.handshake.query.time_round) ? 480 : socket.handshake.query.time_round )};
       room_permenent_id[key].push(socket.handshake.query.myid);
     }else{
       console.log("คนเดิมกลับเข้ามาก้ีคือ : " + socket.handshake.query.nickname);
@@ -69,7 +69,8 @@ io.on('connection', function (socket) {
     obj[key] = temp_userlist;
     room_permenent_id[key] = new Array();
     room_permenent_id[key].push(socket.handshake.query.myid);
-    room_detail[key] = { start_time: null, game_start_already: false};
+    console.log('ตอนสร้างห้องใหม่ มีเวลาเป็น : ' + socket.handshake.query.time_round);
+    room_detail[key] = { start_time: null, game_start_already: false, time_round: (isNaN(socket.handshake.query.time_round) ? 480 : socket.handshake.query.time_round )};
   }
 
   io.emit(socket.handshake.query.room_code, obj[key]);
@@ -121,7 +122,7 @@ io.on('connection', function (socket) {
         obj[room_code][index_spy].position = 'spy';
         var game_detail = {
           location : locations[0].name,
-          timer: 600,
+          timer: room_detail[key].time_round,
           friend_list: obj[room_code],
           location_list: result
         }
