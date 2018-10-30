@@ -21,14 +21,25 @@ var url = `mongodb://${process.env.SPYFALL_MONGO_USERNAME}:${process.env.SPYFALL
 // var url = "mongodb://localhost:27017/spyfall";
 
 var obj = {};
+var room_detail = {};
+var room_permenent_id = {};
 
 io.on('connection', function (socket) {
   const _id = socket.id;
+  console.log('เข้า');
 
   var key = socket.handshake.query.room_code;
   var temp_userlist = new Array();
   if(obj.hasOwnProperty(key)){
     console.log('เพิ่มเพื่อนเข้าห้อง : ', socket.handshake.query.room_code);
+    console.log({
+      key: _id,
+      myid: socket.handshake.query.myid,
+      nickname: socket.handshake.query.nickname,
+      room_code: socket.handshake.query.room_code,
+      position: '',
+      order: 0
+    });
     temp_userlist_has = obj[key];
     temp_userlist_has.push({
       key: _id,
@@ -39,6 +50,12 @@ io.on('connection', function (socket) {
       order: 0
     });
     obj[key] = temp_userlist_has;
+    if(room_permenent_id[key].indexOf(socket.handshake.query.myid) == -1){
+      room_detail[key] = { start_time: null, game_start_already: false};
+      room_permenent_id[key].push(socket.handshake.query.myid);
+    }else{
+      console.log("คนเดิมกลับเข้ามาก้ีคือ : " + socket.handshake.query.nickname);
+    }
   }else{
     console.log('สร้างห้องใหม่ : ' + socket.handshake.query.room_code);
     temp_userlist.push({
@@ -50,22 +67,35 @@ io.on('connection', function (socket) {
       order: 0
     });
     obj[key] = temp_userlist;
+    room_permenent_id[key] = new Array();
+    room_permenent_id[key].push(socket.handshake.query.myid);
+    room_detail[key] = { start_time: null, game_start_already: false};
   }
 
-  io.emit(socket.handshake.query.room_code, obj);
+  io.emit(socket.handshake.query.room_code, obj[key]);
+  io.emit('room-detail-' + socket.handshake.query.room_code, room_detail[key]);
+  console.log(room_detail);
 
   socket.on('kick-user', function (data) {
-    console.log('ลบออก');
+    console.log('โดนเตะออก');
     console.log(data);
     obj[data.room_code].forEach(function(element, index) {
       if(element.myid == data.myid || element.key == data.key){
+        console.log('ก่อนเตะ');
+        console.log(obj[data.room_code]);
         obj[data.room_code].splice(index, 1);
-        io.emit(data.room_code, obj);
+        console.log('หลังเตะ');
+        console.log(obj[data.room_code]);
+        io.emit(data.room_code, obj[data.room_code]);
+        io.emit('kick-' + data.room_code, element.myid);
       }
     });
   });
 
   socket.on('endgame', function (data) {
+    room_detail[key].game_start_already = false;
+    room_detail[key].start_time = null;
+    io.emit('room-detail-' + data.room_code, room_detail[key]);
     io.emit('endgame-' + data.room_code, { game_end: true });
   });
 
@@ -97,19 +127,25 @@ io.on('connection', function (socket) {
           friend_list: obj[room_code],
           location_list: result
         }
+        room_detail[key].game_start_already = true;
+        room_detail[key].start_time = new Date();
         io.emit('game-start-' + room_code, game_detail);
+        io.emit('room-detail-' + room_code, room_detail[key]);
         db.close();
       });
     });
   });
 
   socket.on('disconnect', function () {
+    console.log('ออก');
     for (var key in obj) {
       obj[key].forEach(function(element, index) {
-        console.log(element);
+        // console.log(element);
         if(element.key == _id){
+          console.log('คนที่ออกคือ : ');
+          console.log(obj[key][index]);
           obj[key].splice(index, 1);
-          io.emit(key, obj);
+          io.emit(key, obj[key]);
         }
       });
     }
