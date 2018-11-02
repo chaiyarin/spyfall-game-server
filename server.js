@@ -17,8 +17,10 @@ app.get('/', function (req, res) {
 });
 
 var MongoClient = require('mongodb').MongoClient;
-var url = `mongodb://${process.env.SPYFALL_MONGO_USERNAME}:${process.env.SPYFALL_MONGO_PASSWORD}@${process.env.SPYFALL_MONGO_HOST}:${process.env.SPYFALL_MONGO_PORT}/${process.env.SPYFALL_MONGO_DB_NAME}`;
-// var url = "mongodb://localhost:27017/spyfall";
+//var url = `mongodb://${process.env.SPYFALL_MONGO_USERNAME}:${process.env.SPYFALL_MONGO_PASSWORD}@${process.env.SPYFALL_MONGO_HOST}:${process.env.SPYFALL_MONGO_PORT}/${process.env.SPYFALL_MONGO_DB_NAME}`;
+// var url = "mongodb://mongo/spyfall"; //for docker nipa
+var url = "mongodb://mongo/spyfall";
+
 
 var obj = {};
 var room_detail = {};
@@ -112,7 +114,7 @@ io.on('connection', function (socket) {
       var dbo = db.db("spyfall");
       dbo.collection("locations").find({}).toArray(function(err, result) {
         if (err) throw err;
-        locations = result;
+        locations = result.slice(0);
         locations = shuffle(locations);
         order_lists = shuffle(order_lists);
         obj[room_code].forEach(function(element, index) {
