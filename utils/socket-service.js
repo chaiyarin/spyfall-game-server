@@ -15,6 +15,7 @@ module.exports = {
                 playerTemp.push(data.player);
                 roomDetailTemp.players = playerTemp;
                 storeRoomInConnectionSocket[data.room_detail.room_code] = roomDetailTemp;
+                storePlayerInConnectionSocket[socket.id] = data.player.uniq_code;
                 logger.LoggerPlayerInfo(data.player.name + ' -> Create Room');
                 socket.emit('sendToClientRoom:' + data.room_detail.room_code, storeRoomInConnectionSocket[data.room_detail.room_code]);
             });
@@ -27,6 +28,18 @@ module.exports = {
                     socket.emit('noRoomCodeExist:' + data.player.uniq_code, true);
                 }
             });
+
+            socket.on('disconnect', function() {
+                var playerUniqCode = storePlayerInConnectionSocket[socket.id];
+                for(var roomCode in storeRoomInConnectionSocket){
+                    storeRoomInConnectionSocket[roomCode].players.forEach(function(player, index) {
+                        if(player.uniq_code == playerUniqCode){
+                            storeRoomInConnectionSocket[roomCode].players.splice(index, 1);
+                        }
+                    });
+                }
+                delete storePlayerInConnectionSocket[socket.id];
+             });
 
           });
     }
