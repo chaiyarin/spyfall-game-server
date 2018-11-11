@@ -1,5 +1,8 @@
 var fs = require('fs');
 if (!fs.existsSync('logs/player-info.txt')) {
+    if (!fs.existsSync('./logs')){
+        fs.mkdirSync('./logs');
+    }
     fs.createWriteStream('logs/player-info.txt');
 }
 module.exports = {
