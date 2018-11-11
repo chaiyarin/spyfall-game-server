@@ -17,13 +17,16 @@ module.exports = {
                 storeRoomInConnectionSocket[data.room_detail.room_code] = roomDetailTemp;
                 storePlayerInConnectionSocket[socket.id] = data.player.uniq_code;
                 logger.LoggerPlayerInfo(data.player.name + ' -> Create Room');
-                socket.emit('sendToClientRoom:' + data.room_detail.room_code, storeRoomInConnectionSocket[data.room_detail.room_code]);
+                io.emit('sendToClientRoom:' + data.room_detail.room_code, storeRoomInConnectionSocket[data.room_detail.room_code]);
             });
 
             socket.on('joinRoom', function (data) {
                 console.log('Join Room');
                 if(storeRoomInConnectionSocket.hasOwnProperty(data.room_code)){
-                    console.log(data);
+                    playerTemp = storeRoomInConnectionSocket[data.room_code].players;
+                    playerTemp.push(data.player);
+                    storeRoomInConnectionSocket[data.room_code].players = playerTemp;
+                    io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
                 }else{
                     socket.emit('noRoomCodeExist:' + data.player.uniq_code, true);
                 }
