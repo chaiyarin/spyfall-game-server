@@ -35,16 +35,18 @@ module.exports = {
             });
 
             socket.on('kickUser', function (data) {
-                if(typeof(storeRoomInConnectionSocket[data.room_code].players) === 'undefined'){
-                    return;
+                try {
+                    storeRoomInConnectionSocket[data.room_code].players.forEach(function(player, index) {
+                        if(player.uniq_code == data.player.uniq_code){
+                            storeRoomInConnectionSocket[data.room_code].players.splice(index, 1);
+                            io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
+                            io.emit('updateKickUser:' + data.room_code, { uniq_code: player.uniq_code } );
+                        }
+                    });
                 }
-                storeRoomInConnectionSocket[data.room_code].players.forEach(function(player, index) {
-                    if(player.uniq_code == data.player.uniq_code){
-                        storeRoomInConnectionSocket[data.room_code].players.splice(index, 1);
-                        io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
-                        io.emit('updateKickUser:' + data.room_code, { uniq_code: player.uniq_code } );
-                    }
-                });
+                    catch(error) {
+                    console.error(error);
+                }
             });
 
             socket.on('startGame', function (data) {
