@@ -33,6 +33,8 @@ module.exports = {
             });
 
             socket.on('kickUser', function (data) {
+                if(typeof storeRoomInConnectionSocket[data.room_code].players == 'undefined')
+                    return;
                 storeRoomInConnectionSocket[data.room_code].players.forEach(function(player, index) {
                     if(player.uniq_code == data.player.uniq_code){
                         storeRoomInConnectionSocket[data.room_code].players.splice(index, 1);
@@ -53,6 +55,7 @@ module.exports = {
                     });
                 }
                 delete storePlayerInConnectionSocket[socket.id];
+                console.log('Session Connecting: ' + Object.keys(storePlayerInConnectionSocket).length);
              });
 
           });
