@@ -20,20 +20,12 @@ module.exports = {
             });
 
             socket.on('joinRoom', function (data) {
+                console.log('Join Room');
                 if(storeRoomInConnectionSocket.hasOwnProperty(data.room_code)){
-                    console.log('Join Room');
-                    // sendRoomDetailToClient(socket);
+                    console.log(data);
                 }else{
-                    console.log('Not Have')
+                    socket.emit('noRoomCodeExist:' + data.player.uniq_code, true);
                 }
-            });
-
-            socket.on('startGame', function (room_code) {
-
-            });
-
-            socket.on('endGame', function () {
-
             });
 
           });
