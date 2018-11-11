@@ -35,8 +35,9 @@ module.exports = {
             });
 
             socket.on('kickUser', function (data) {
-                if(typeof storeRoomInConnectionSocket[data.room_code].players == 'undefined')
+                if(typeof(storeRoomInConnectionSocket[data.room_code].players) === 'undefined'){
                     return;
+                }
                 storeRoomInConnectionSocket[data.room_code].players.forEach(function(player, index) {
                     if(player.uniq_code == data.player.uniq_code){
                         storeRoomInConnectionSocket[data.room_code].players.splice(index, 1);
@@ -44,6 +45,12 @@ module.exports = {
                         io.emit('updateKickUser:' + data.room_code, { uniq_code: player.uniq_code } );
                     }
                 });
+            });
+
+            socket.on('startGame', function (data) {
+                console.log(data.room_detail);
+                data.room_detail.is_play = true;
+                data.room_detail.start_game_time = new Date();
             });
 
             socket.on('disconnect', function() {
