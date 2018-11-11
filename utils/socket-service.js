@@ -11,6 +11,7 @@ module.exports = {
             var key = socket.handshake.query.room_code;
 
             socket.on('createRoom', function (data) { // roomDetail , Player
+                playerTemp = new Array();
                 roomDetailTemp = data.room_detail;
                 playerTemp.push(data.player);
                 roomDetailTemp.players = playerTemp;
@@ -22,6 +23,7 @@ module.exports = {
 
             socket.on('joinRoom', function (data) {
                 if(storeRoomInConnectionSocket.hasOwnProperty(data.room_code)){
+                    playerTemp = new Array();
                     storePlayerInConnectionSocket[socket.id] = data.player.uniq_code;
                     playerTemp = storeRoomInConnectionSocket[data.room_code].players;
                     playerTemp.push(data.player);
