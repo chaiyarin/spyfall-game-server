@@ -21,7 +21,6 @@ module.exports = {
             });
 
             socket.on('joinRoom', function (data) {
-                console.log('Join Room');
                 if(storeRoomInConnectionSocket.hasOwnProperty(data.room_code)){
                     storePlayerInConnectionSocket[socket.id] = data.player.uniq_code;
                     playerTemp = storeRoomInConnectionSocket[data.room_code].players;
@@ -33,8 +32,17 @@ module.exports = {
                 }
             });
 
+            socket.on('kickUser', function (data) {
+                storeRoomInConnectionSocket[data.room_code].players.forEach(function(player, index) {
+                    if(player.uniq_code == data.player.uniq_code){
+                        storeRoomInConnectionSocket[data.room_code].players.splice(index, 1);
+                        io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
+                        io.emit('updateKickUser:' + data.room_code, { uniq_code: player.uniq_code } );
+                    }
+                });
+            });
+
             socket.on('disconnect', function() {
-                console.log('มีคนหลุด');
                 var playerUniqCode = storePlayerInConnectionSocket[socket.id];
                 for(var roomCode in storeRoomInConnectionSocket){
                     storeRoomInConnectionSocket[roomCode].players.forEach(function(player, index) {
