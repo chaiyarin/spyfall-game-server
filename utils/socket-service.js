@@ -23,6 +23,7 @@ module.exports = {
             socket.on('joinRoom', function (data) {
                 console.log('Join Room');
                 if(storeRoomInConnectionSocket.hasOwnProperty(data.room_code)){
+                    storePlayerInConnectionSocket[socket.id] = data.player.uniq_code;
                     playerTemp = storeRoomInConnectionSocket[data.room_code].players;
                     playerTemp.push(data.player);
                     storeRoomInConnectionSocket[data.room_code].players = playerTemp;
@@ -33,11 +34,13 @@ module.exports = {
             });
 
             socket.on('disconnect', function() {
+                console.log('มีคนหลุด');
                 var playerUniqCode = storePlayerInConnectionSocket[socket.id];
                 for(var roomCode in storeRoomInConnectionSocket){
                     storeRoomInConnectionSocket[roomCode].players.forEach(function(player, index) {
                         if(player.uniq_code == playerUniqCode){
                             storeRoomInConnectionSocket[roomCode].players.splice(index, 1);
+                            io.emit('sendToClientRoom:' + roomCode, storeRoomInConnectionSocket[roomCode]);
                         }
                     });
                 }
