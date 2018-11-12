@@ -5,7 +5,7 @@ var roomDetailTemp = {};
 var playerTemp = new Array();
 
 module.exports = {
-    spyfallSocketService:function(io){
+    spyfallSocketService: function(io){
         io.on('connection', function (socket) {
             const _id = socket.id;
             var key = socket.handshake.query.room_code;
@@ -49,10 +49,11 @@ module.exports = {
                 }
             });
 
-            socket.on('startGame', function (data) {
-                console.log(data.room_detail);
+            socket.on('startGame', async function (data) {
                 data.room_detail.is_play = true;
                 data.room_detail.start_game_time = new Date();
+                var getLocations = await require('./mongo-service');
+                console.log(getLocations);
             });
 
             socket.on('disconnect', function() {
