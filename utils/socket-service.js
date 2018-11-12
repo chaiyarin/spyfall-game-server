@@ -29,6 +29,7 @@ module.exports = {
                     playerTemp = storeRoomInConnectionSocket[data.room_code].players;
                     playerTemp.push(data.player);
                     storeRoomInConnectionSocket[data.room_code].players = playerTemp;
+                    logger.LoggerPlayerInfo(data.player.name + ' -> Join Room');
                     io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
                 }else{
                     socket.emit('noRoomCodeExist:' + data.player.uniq_code, true);
