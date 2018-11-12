@@ -71,7 +71,16 @@ module.exports = {
                     }
                     data.room_detail.players[index].position = getLocations[randomLocation].peoples[Math.floor(Math.random() * positionLength)];
                 });
+                storeRoomInConnectionSocket[data.room_detail.room_code].is_play = true;
+                storeRoomInConnectionSocket[data.room_detail.room_code].start_game_time = data.room_detail.start_game_time;
                 io.emit('updateUIRenderGame:' + data.room_detail.room_code, data.room_detail);
+            });
+
+            socket.on('endGame', function (data) {
+                console.log('endgame');
+                storeRoomInConnectionSocket[data.room_code].is_play = false;
+                storeRoomInConnectionSocket[data.room_code].start_game_time = null;
+                io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
             });
 
             socket.on('disconnect', function() {
