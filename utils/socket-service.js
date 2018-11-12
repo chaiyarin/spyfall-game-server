@@ -70,7 +70,7 @@ module.exports = {
                     }
                     data.room_detail.players[index].position = getLocations[randomLocation].peoples[Math.floor(Math.random() * positionLength)];
                 });
-                console.log(data.room_detail);
+                io.emit('updateUIRenderGame:' + data.room_detail.room_code, data.room_detail);
             });
 
             socket.on('disconnect', function() {
