@@ -55,14 +55,15 @@ module.exports = {
                 var randomLocation = Math.floor(Math.random() * getLocations.length);
                 var positionLength =  getLocations[randomLocation].peoples.length;
                 var randomSpy = Math.floor(Math.random() * data.room_detail.players.length);
-                var orderPlayerArray = utilService.shuffle(data.room_detail.players);
+                var orderPlayerArray = utilService.generateOrderLength(data.room_detail.players.length);
+                orderPlayerArray = utilService.shuffle(orderPlayerArray);
                 data.room_detail.is_play = true;
                 data.room_detail.start_game_time = new Date();
                 data.room_detail.location = getLocations[randomLocation].name;
-                data.room_detail.players = orderPlayerArray;
                 data.room_detail.players[randomSpy].is_spy = true;
                 data.room_detail.locations = getLocations;
                 data.room_detail.players.forEach(function(player, index) {
+                    data.room_detail.players[index].order = orderPlayerArray.pop();
                     if(player.is_spy){
                         data.room_detail.players[index].position = '';
                         return;
