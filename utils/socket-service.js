@@ -1,4 +1,5 @@
 var logger = require('./logs-service');
+var utilService = require('./util-service');
 var storePlayerInConnectionSocket = {};
 var storeRoomInConnectionSocket = new Array();
 var roomDetailTemp = {};
@@ -53,7 +54,8 @@ module.exports = {
                 data.room_detail.is_play = true;
                 data.room_detail.start_game_time = new Date();
                 var getLocations = await require('./mongo-service');
-                console.log(getLocations);
+                var randomNumber = Math.floor(Math.random() * getLocations.length);
+                var currentLocationInGame = getLocations[randomNumber];
             });
 
             socket.on('disconnect', function() {
