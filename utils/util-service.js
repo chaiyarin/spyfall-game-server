@@ -8,5 +8,12 @@ module.exports = {
             a[j] = x;
         }
         return a;
+    },
+    generateOrderLength: function (playerLength) {
+        var orderList = new Array();
+        for(var i=0; i < playerLength; i++) {
+            orderList.push(i+1);
+        }
+        return orderList;
     }
 }
