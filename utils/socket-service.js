@@ -51,11 +51,25 @@ module.exports = {
             });
 
             socket.on('startGame', async function (data) {
+                var getLocations = await require('./mongo-service');
+                var randomLocation = Math.floor(Math.random() * getLocations.length);
+                var positionLength =  getLocations[randomLocation].peoples.length;
+                var randomSpy = Math.floor(Math.random() * data.room_detail.players.length);
+                var orderPlayerArray = utilService.shuffle(data.room_detail.players);
                 data.room_detail.is_play = true;
                 data.room_detail.start_game_time = new Date();
-                var getLocations = await require('./mongo-service');
-                var randomNumber = Math.floor(Math.random() * getLocations.length);
-                var currentLocationInGame = getLocations[randomNumber];
+                data.room_detail.location = getLocations[randomLocation].name;
+                data.room_detail.players = orderPlayerArray;
+                data.room_detail.players[randomSpy].is_spy = true;
+                data.room_detail.locations = getLocations;
+                data.room_detail.players.forEach(function(player, index) {
+                    if(player.is_spy){
+                        data.room_detail.players[index].position = '';
+                        return;
+                    }
+                    data.room_detail.players[index].position = getLocations[randomLocation].peoples[Math.floor(Math.random() * positionLength)];
+                });
+                console.log(data.room_detail);
             });
 
             socket.on('disconnect', function() {
