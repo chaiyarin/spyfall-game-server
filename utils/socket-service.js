@@ -90,6 +90,10 @@ module.exports = {
                         if(player.uniq_code == playerUniqCode){
                             storeRoomInConnectionSocket[roomCode].players.splice(index, 1);
                             io.emit('sendToClientRoom:' + roomCode, storeRoomInConnectionSocket[roomCode]);
+                            if(storeRoomInConnectionSocket[roomCode].players.length == 0){
+                                delete storeRoomInConnectionSocket[roomCode];
+                                console.log('Delete Room Beacuse User Is Empty');
+                            }
                         }
                     });
                 }
