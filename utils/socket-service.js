@@ -41,6 +41,10 @@ module.exports = {
                     storeRoomInConnectionSocket[data.room_code].players.forEach(function(player, index) {
                         if(player.uniq_code == data.player.uniq_code){
                             storeRoomInConnectionSocket[data.room_code].players.splice(index, 1);
+                            if(storeRoomInConnectionSocket[data.room_code].players.length == 0){
+                                delete storeRoomInConnectionSocket[data.room_code];
+                                console.log('Delete Room Beacuse User Is Empty');
+                            }
                             io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
                             io.emit('updateKickUser:' + data.room_code, { uniq_code: player.uniq_code } );
                         }
