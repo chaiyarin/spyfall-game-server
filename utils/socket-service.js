@@ -9,9 +9,17 @@ module.exports = {
     spyfallSocketService: function(io){
         io.on('connection', function (socket) {
             const _id = socket.id;
-            var key = socket.handshake.query.room_code;
+            var roomCode = socket.handshake.query.room_code;
+            var uniqId = socket.handshake.query.uniq_code;
+
+            // ส่ง roomdetail ไปที่ roomcode และ uniqId ของคนนั้น ในกรณีเกมส์ในห้องนั้นเล่นอยู่
+            if(typeof(storeRoomInConnectionSocket[roomCode]) != 'undefined' && storeRoomInConnectionSocket[roomCode].is_play){
+                console.log('Resume Game');
+                io.emit('resumeGame:' + roomCode + ':' + uniqId , storeRoomInConnectionSocket[roomCode]);
+            }
 
             socket.on('createRoom', function (data) { // roomDetail , Player
+                console.log('Create Room', data);
                 playerTemp = new Array();
                 roomDetailTemp = data.room_detail;
                 playerTemp.push(data.player);
@@ -23,6 +31,7 @@ module.exports = {
             });
 
             socket.on('joinRoom', function (data) {
+                console.log('Join Room', data);
                 if(storeRoomInConnectionSocket.hasOwnProperty(data.room_code)){
                     playerTemp = new Array();
                     storePlayerInConnectionSocket[socket.id] = data.player.uniq_code;
@@ -56,6 +65,7 @@ module.exports = {
             });
 
             socket.on('startGame', async function (data) {
+                console.log('Start Game ', data);
                 var getLocations = await require('./mongo-service');
                 var randomLocation = Math.floor(Math.random() * getLocations.length);
                 var positionLength =  getLocations[randomLocation].peoples.length;
@@ -81,7 +91,7 @@ module.exports = {
             });
 
             socket.on('endGame', function (data) {
-                console.log('endgame');
+                console.log('End Game');
                 storeRoomInConnectionSocket[data.room_code].is_play = false;
                 storeRoomInConnectionSocket[data.room_code].start_game_time = null;
                 io.emit('sendToClientRoom:' + data.room_code, storeRoomInConnectionSocket[data.room_code]);
