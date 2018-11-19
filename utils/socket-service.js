@@ -11,11 +11,26 @@ module.exports = {
             const _id = socket.id;
             var roomCode = socket.handshake.query.room_code;
             var uniqId = socket.handshake.query.uniq_code;
+            var name = socket.handshake.query.name;
 
             // ส่ง roomdetail ไปที่ roomcode และ uniqId ของคนนั้น ในกรณีเกมส์ในห้องนั้นเล่นอยู่
             if(typeof(storeRoomInConnectionSocket[roomCode]) != 'undefined' && storeRoomInConnectionSocket[roomCode].is_play){
                 console.log('Resume Game');
                 io.emit('resumeGame:' + roomCode + ':' + uniqId , storeRoomInConnectionSocket[roomCode]);
+                // Add User To Room When User Resume
+                playerTemp = new Array();
+                storePlayerInConnectionSocket[socket.id] = uniqId;
+                playerTemp = storeRoomInConnectionSocket[roomCode].players;
+                var PlayerResume = { uniq_code: uniqId,
+                                        name: name,
+                                        is_spy: false,
+                                        position: '',
+                                        is_own_room: false };
+                playerTemp.push(PlayerResume);
+                storeRoomInConnectionSocket[roomCode].players = playerTemp;
+                logger.LoggerPlayerInfo(name + ' -> Resume Join Room');
+                io.emit('sendToClientRoom:' + roomCode, storeRoomInConnectionSocket[roomCode]);
+                // End Add User To Room When User Resume
             }
 
             socket.on('createRoom', function (data) { // roomDetail , Player
@@ -112,7 +127,7 @@ module.exports = {
                     });
                 }
                 delete storePlayerInConnectionSocket[socket.id];
-                console.log('Session Connecting: ' + Object.keys(storePlayerInConnectionSocket).length);
+                console.log('Now Server Have ' + Object.keys(storePlayerInConnectionSocket).length + ' Peoples');
              });
 
           });
